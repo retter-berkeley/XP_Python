@@ -43,7 +43,7 @@ class PythonInterface:
         self.MAX_OUTPUT_DATA_ITEMS = 1
 
         # Use lists for the datarefs, makes it easier to add extra datarefs
-        InputDataRefDescriptions = ["sim/flightmodel/engine/ENGN_thro", "sim/cockpit2/gauges/indicators/airspeed_kts_pilot"]
+        InputDataRefDescriptions = ["sim/flightmodel/engine/ENGN_thro", "sim/aircraft/engine/acf_num_engines"]
         OutputDataRefDescriptions = ["sim/flightmodel/engine/ENGN_thro"]
         self.DataRefDesc = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
@@ -85,7 +85,7 @@ class PythonInterface:
                                    # "sim/cockpit2/controls/total_roll_ratio","sim/flightmodel/controls/rudd_def",
                                    # "sim/cockpit2/gauges/indicators/altitude_ft_pilot", "sim/cockpit2/gauges/indicators/heading_electric_deg_mag_pilot",
                                    # "sim/cockpit2/gauges/indicators/airspeed_kts_pilot"]
-        # OutputDataRefDescriptions = ["sim/flightmodel/engine/ENGN_N1_", "sim/cockpit2/controls/total_pitch_ratio",
+        # OutputDataRefDescriptions = ["sim/flightmodel/engine/ENGN_thro", "sim/cockpit2/controls/total_pitch_ratio",
                                    # "sim/cockpit2/controls/total_roll_ratio","sim/flightmodel/controls/rudd_def"]
         # self.DataRefDesc = ["1"]
         
@@ -203,9 +203,6 @@ class PythonInterface:
         # Get our throttle positions for each engine
         self.Throttle:list[float] = []
         count = xp.getDatavf(self.InputDataRef[0], self.Throttle, 0, self.NumberOfEngines)
-        
-        self.speed:list[float] = []
-        count = xp.getDatavf(self.InputDataRef[1], self.speed, 0, self.NumberOfEngines)
 
         # Get our current N1 for each engine
         self.CurrentN1:list[float] = []
@@ -220,7 +217,7 @@ class PythonInterface:
         for Item in range(self.NumberOfEngines):
             # Default to New = Current
             self.NewN1.append(self.CurrentN1[Item])
-
+            print("check", self.Throttle[Item])
             """
             Special processing can go here depending on input value
             For this example just limit N1 to 80% if throttle > 50%
@@ -289,14 +286,14 @@ class PythonInterface:
                                                   "", 0, self.InputOutputWidget, xp.WidgetClass_TextField))
 
             # Set it to be text entry
-            xp.setWidgetProperty(self.InputEdit[Item,0], xp.Property_TextFieldType, xp.TextEntryField)
+            xp.setWidgetProperty(self.InputEdit[Item], xp.Property_TextFieldType, xp.TextEntryField)
 
             # Create an edit widget for the N1 value
             self.OutputEdit.append(xp.createWidget(x + 190, y - (60 + (Item * 30)), x + 270, y - (82 + (Item * 30)), 1,
                                                    "", 0, self.InputOutputWidget, xp.WidgetClass_TextField))
 
             # Set it to be text entry
-            xp.setWidgetProperty(self.InputEdit[Item,1], xp.Property_TextFieldType, xp.TextEntryField)
+            xp.setWidgetProperty(self.InputEdit[Item], xp.Property_TextFieldType, xp.TextEntryField)
 
         # Register our widget handler
         self.InputOutputHandlerCB = self.InputOutputHandler
