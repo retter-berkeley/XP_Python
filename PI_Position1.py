@@ -22,10 +22,10 @@ class PythonInterface:
         self.MAX_ITEMS = 11
 
         # Use lists for the datarefs, makes it easier to add extra datarefs
-        self.DataRefString = ["sim/flightmodel/position/local_x", "sim/flightmodel/position/local_y", "sim/flightmodel/position/local_z",
+        self.DataRefString = ["sim/joystick/yolk_pitch_ratio", "sim/joystick/yoke_roll_ratio", "sim/flightmodel/controls/rudd_def",
                               "sim/flightmodel/position/lat_ref", "sim/flightmodel/position/lon_ref", "sim/flightmodel/position/theta",
                               "sim/flightmodel/position/phi", "sim/flightmodel/position/psi",
-                              "sim/flightmodel/position/latitude", "sim/flightmodel/position/longitude", "sim/flightmodel/position/elevation"]
+                              "sim/flightmodel/engine/ENGN_thro", "sim/flightmodel/position/true_airspeed", "sim/flightmodel/position/elevation"]
 
         self.DataRefDesc = ["Local x", "Local y", "Local z", "Lat Ref", "Lon Ref", "Theta", "Phi", "Psi"]
         self.Description = ["Latitude", "Longitude", "Elevation"]
