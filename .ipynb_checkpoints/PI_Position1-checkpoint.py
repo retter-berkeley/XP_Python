@@ -261,6 +261,6 @@ class PythonInterface:
             # This writes out the lat/lon/alt from the widget text fields back to the datarefs
             xp.setDataf(self.PositionDataRef[Item + 8], FloatValue[Item])
             # This writes out the x,y,z datarefs after conversion from lat/lon/alt back to the datarefs
-            
+            xp.setDataf(self.PositionDataRef[Item], DoubleValue[Item])
 
         self.ApplyLatLonRefValues()
