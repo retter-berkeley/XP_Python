@@ -1,18 +1,8 @@
 """
-Position Example
 
-Written by Sandy Barbour - 26/05/2004
-
-Ported to Python by Sandy Barbour - 10/05/2005
-Ported to Python3 by Peter Buckner - 08-15-2021
-
-This examples shows how to change the aircraft attitude.
-Should be used with the override plugin.
 """
 
 from XPPython3 import xp
-
-
 class PythonInterface:
     def XPluginStart(self):
         self.Name = "Position1 v1.0"
@@ -184,61 +174,59 @@ class PythonInterface:
         self.PositionHandlerCB = self.PositionHandler
         xp.addWidgetCallback(self.PositionWidget, self.PositionHandlerCB)
 
-    def PositionHandler(self, inMessage, inWidget, inParam1, inParam2):
+    # def PositionHandler(self, inMessage, inWidget, inParam1, inParam2):
 
-        FloatValue = []
+    #     FloatValue = []
 
-        for Item in range(self.MAX_ITEMS):
-            FloatValue.append(xp.getDataf(self.PositionDataRef[Item]))
+    #     for Item in range(self.MAX_ITEMS):
+    #         FloatValue.append(xp.getDataf(self.PositionDataRef[Item]))
 
-        if inMessage == xp.Message_CloseButtonPushed:
-            if self.MenuItem1 == 1:
-                xp.hideWidget(self.PositionWidget)
-            return 1
+    #     if inMessage == xp.Message_CloseButtonPushed:
+    #         if self.MenuItem1 == 1:
+    #             xp.hideWidget(self.PositionWidget)
+    #         return 1
 
-        if inMessage == xp.Msg_PushButtonPressed:
+    #     if inMessage == xp.Msg_PushButtonPressed:
 
-            if inParam1 == self.PositionApplyButton:
-                self.ApplyValues()
-                return 1
+    #         if inParam1 == self.PositionApplyButton:
+    #             self.ApplyValues()
+    #             return 1
 
-            if inParam1 == self.LatLonRefApplyButton:
-                self.ApplyLatLonRefValues()
-                return 1
+    #         if inParam1 == self.LatLonRefApplyButton:
+    #             self.ApplyLatLonRefValues()
+    #             return 1
 
-            if inParam1 == self.LatLonAltApplyButton:
-                self.ApplyLatLonAltValues()
-                return 1
+    #         if inParam1 == self.LatLonAltApplyButton:
+    #             self.ApplyLatLonAltValues()
+    #             return 1
 
-            if inParam1 == self.ReloadSceneryButton:
-                xp.reloadScenery()
-                return 1
+    #         if inParam1 == self.ReloadSceneryButton:
+    #             xp.reloadScenery()
+    #             return 1
 
-            for Item in range(self.MAX_ITEMS - 3):
-                if inParam1 == self.UpArrow[Item]:
-                    FloatValue[Item] += 1.0
-                    buffer = "%f" % (FloatValue[Item])
-                    xp.setWidgetDescriptor(self.PositionEdit[Item], buffer)
-                    xp.setDataf(self.PositionDataRef[Item], FloatValue[Item])
-                    return 1
+    #         for Item in range(self.MAX_ITEMS - 3):
+    #             if inParam1 == self.UpArrow[Item]:
+    #                 FloatValue[Item] += 1.0
+    #                 buffer = "%f" % (FloatValue[Item])
+    #                 xp.setWidgetDescriptor(self.PositionEdit[Item], buffer)
+    #                 xp.setDataf(self.PositionDataRef[Item], FloatValue[Item])
+    #                 return 1
 
-            for Item in range(self.MAX_ITEMS - 3):
-                if (inParam1 == self.DownArrow[Item]):
-                    FloatValue[Item] -= 1.0
-                    buffer = "%f" % (FloatValue[Item])
-                    xp.setWidgetDescriptor(self.PositionEdit[Item], buffer)
-                    xp.setDataf(self.PositionDataRef[Item], FloatValue[Item])
-                    return 1
+    #         for Item in range(self.MAX_ITEMS - 3):
+    #             if (inParam1 == self.DownArrow[Item]):
+    #                 FloatValue[Item] -= 1.0
+    #                 buffer = "%f" % (FloatValue[Item])
+    #                 xp.setWidgetDescriptor(self.PositionEdit[Item], buffer)
+    #                 xp.setDataf(self.PositionDataRef[Item], FloatValue[Item])
+    #                 return 1
 
-        return 0
+    #     return 0
 
     def ApplyValues(input):
+        xp.setDataf(xp.findDataRef("sim/joystick/yolk_pitch_ratio"), input[0] )
+        xp.setDataf(xp.findDataRef("sim/joystick/yoke_roll_ratio"), input[1] )
+        xp.setDataf(xp.findDataRef("sim/flightmodel/engine/ENGN_thro"), input[2] )
 
-        for Item in range(self.MAX_ITEMS - 3):
-            buffer = xp.getWidgetDescriptor(self.PositionEdit[Item])
-            xp.setDataf(self.PositionDataRef[Item], float(buffer))
-
-    
     def ApplyLatLonRefValues(self):
         buffer = xp.getWidgetDescriptor(self.PositionEdit[3])
         FloatValue = float(buffer)

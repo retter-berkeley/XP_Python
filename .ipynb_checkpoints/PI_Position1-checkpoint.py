@@ -232,11 +232,13 @@ class PythonInterface:
 
         return 0
 
-    def ApplyValues(self):
+    def ApplyValues(input):
+
         for Item in range(self.MAX_ITEMS - 3):
             buffer = xp.getWidgetDescriptor(self.PositionEdit[Item])
             xp.setDataf(self.PositionDataRef[Item], float(buffer))
 
+    
     def ApplyLatLonRefValues(self):
         buffer = xp.getWidgetDescriptor(self.PositionEdit[3])
         FloatValue = float(buffer)
@@ -261,6 +263,6 @@ class PythonInterface:
             # This writes out the lat/lon/alt from the widget text fields back to the datarefs
             xp.setDataf(self.PositionDataRef[Item + 8], FloatValue[Item])
             # This writes out the x,y,z datarefs after conversion from lat/lon/alt back to the datarefs
-            xp.setDataf(self.PositionDataRef[Item], DoubleValue[Item])
+            
 
         self.ApplyLatLonRefValues()
