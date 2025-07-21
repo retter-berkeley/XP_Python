@@ -95,6 +95,46 @@ class PythonInterface:
     def XPluginReceiveMessage(self, inFromWho, inMessage, inParam):
         pass
 
+     def Obs(self):
+        # if self.MenuItem1 == 0:  # Don't process if widget not visible
+        #     return 1.0
+
+        # Only deal with the actual engines that we have
+        #self.NumberOfEngines = self.MAX_NUMBER_ENGINES#xp.getDatai(self.InputDataRef[1])
+
+        self.Pitch=[]
+        self.Roll = []
+        self.Yaw = []
+        self.Throttle =[]
+        self.Alt = []
+        self.Hdg = []
+        self.Speed = []
+
+        # Get our throttle positions for each engine
+        # self.Throttle:list[float] = []
+        count = xp.getDatavf(self.InputDataRef[0], self.Throttle, 0, 1)
+
+        # #Get pitch, roll, yaw
+
+        self.Pitch = xp.getDataf(self.InputDataRef[1])#, self.Pitch, 0, 1)
+        self.Roll = xp.getDataf(self.InputDataRef[2])#, self.Roll, 0, 1)
+        self.Yaw = xp.getDataf(self.InputDataRef[3])#, self.Yaw, 0, 1)
+
+        # #Get altitude, heading, airspeed
+
+        self.Alt = xp.getDataf(self.InputDataRef[4])#, self.Alt, 0, 1)
+        self.Hdg = xp.getDataf(self.InputDataRef[5])#, self.Hdg, 0, 1)
+        self.Speed = xp.getDataf(self.InputDataRef[6])#, self.Speed, 0, 1)
+
+        # #self.NewThrottle = self. Throttle + 0.05
+        # #time.sleep(5)
+        #print(self.Yaw, self.Pitch, self.Roll, self.Throttle, self.Alt, self.Hdg, self.Speed)
+        # # Set the new Throttle values for each engine
+        # xp.setDatavf(self.OutputDataRef[0], self.NewThrottle, 0)
+
+        # This means call us ever 1000ms.
+        return self.Yaw, self.Pitch, self.Roll, self.Throttle, self.Alt, self.Hdg, self.Speed
+    
     def InputOutputLoopCallback(self, elapsedMe, elapsedSim, counter, refcon):
         # if self.MenuItem1 == 0:  # Don't process if widget not visible
         #     return 1.0
@@ -135,6 +175,9 @@ class PythonInterface:
         # This means call us ever 1000ms.
         return 1.00
  
+    def SetPitch(self, PtichSet):
+        xp.setDataf(self.OutputDataRef[1], PitchSet)
+    
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
         # If menu selected create our widget dialog
         if inItemRef == 1:
