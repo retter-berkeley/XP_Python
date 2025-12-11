@@ -44,7 +44,7 @@ class PythonInterface:
         self.MAX_OUTPUT_DATA_ITEMS = 4
 
         # Use lists for the datarefs, makes it easier to add extra datarefs
-        InputDataRefDescriptions = ["sim/flightmodel/engine/ENGN_thro", "sim/joystick/yolk_pitch_ratio",
+        InputDataRefDescriptions = ["sim/cockpit2/engine/actuators/throttle_ratio", "sim/joystick/yolk_pitch_ratio",
                                    "sim/joystick/yoke_roll_ratio","sim/joystick/FC_ptch",
                                    "sim/cockpit2/gauges/indicators/altitude_ft_pilot", "sim/flightmodel/position/true_psi",
                                    "sim/cockpit2/gauges/indicators/airspeed_kts_pilot"]
