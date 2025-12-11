@@ -6,6 +6,7 @@ from DDPGv2 import functions
 import tensorflow as tf
 import keras
 import numpy as np
+import datetime
 
 class PythonInterface:
     def XPluginStart(self):
@@ -13,8 +14,10 @@ class PythonInterface:
         self.Sig = "tbd"
         self.Desc = "RL training driving XPlane."
 
-        mySubMenuItem = xp.appendMenuItem(xp.findPluginsMenu(), "Python - Drives 1", 0)
-        self.myMenu = xp.createMenu("Drives", xp.findPluginsMenu(), mySubMenuItem, self.MyMenuHandlerCallback, 0)
+        Item = xp.appendMenuItem(xp.findPluginsMenu(), "Python - PI_Drives 1", 0)
+        self.InputOutputMenuHandlerCB = self.InputOutputMenuHandler
+        self.Id = xp.createMenu("PI_Drives 1", xp.findPluginsMenu(), Item, self.InputOutputMenuHandlerCB, 0)
+        xp.appendMenuItem(self.Id, "Data", 1)
 
         self.StateDataRefDescriptions = ["sim/flightmodel/engine/ENGN_thro", "sim/joystick/yolk_pitch_ratio",
                                    "sim/joystick/yoke_roll_ratio","sim/joystick/FC_ptch",
@@ -31,15 +34,16 @@ class PythonInterface:
             self.ActionDataRef.append(xp.findDataRef(self.ActionDataRefDescriptions[Item]))
       
         #XP init:  make item list
-        Item = xp.appendMenuItem(xp.findPluginsMenu(), "Python - Drives 1", 0)
-        self.PositionMenuHandlerCB = self.PositionMenuHandler
-        self.Id = xp.createMenu("Drives1", xp.findPluginsMenu(), Item, self.PositionMenuHandlerCB, 0)
-        xp.appendMenuItem(self.Id, "Drives1", 1)
+        # Item = xp.appendMenuItem(xp.findPluginsMenu(), "Python - Drives 1", 0)
+        # #self.PositionMenuHandlerCB = self.PositionMenuHandler
+        # self.InputOutputMenuHandlerCB = self.InputOutputMenuHandler
+        # self.Id = xp.createMenu("Drives1", xp.findPluginsMenu(), Item, self.PositionMenuHandlerCB, 0)
+        # xp.appendMenuItem(self.Id, "Drives1", 1)
     
         # Flag to tell us if the widget is being displayed.
         self.MenuItem1 = 0
         
-        self.XP_test()
+        #self.XP_test()
         self.InputOutputLoopCB = self.InputOutputLoopCallback
         xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
 
@@ -71,10 +75,16 @@ class PythonInterface:
             return 1.0
 
         # Process each engine
-        self.NewN1 = []
-
-        # This means call us ever 10ms.
-        return 0.01
+        if datetime.datetime.now().second %2 ==0:
+            action=np.array([0.1,0.1,0.9])
+        else:
+            action=np.array([0.9,0.9,0.1])
+        self.XP_test(action)
+        print(datetime.datetime.now().second, action)
+        state= self.XPobs()
+        print("state ",state)
+        # return 0.01 means call us ever 10ms.
+        return 1
 
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
         # If menu selected create our widget dialog
@@ -302,9 +312,10 @@ class PythonInterface:
             avg_reward_list.append(avg_reward)      
             
             
-    def XP_test(self):#self, elapsedMe, elapsedSim, counter, refcon):
+    def XP_test(self, action):#self, elapsedMe, elapsedSim, counter, refcon):
         state=self.XPreset()
-        action=np.array([0.5,0.5,0.5])
+        #action=np.array([0.1,0.1,0.9])
         state, reward, done, truncated = self.XPaction(action)
+        print("PI drives test ",state, reward, done, truncated)
         return 1.00
     
