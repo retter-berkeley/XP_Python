@@ -181,9 +181,9 @@ class PythonInterface:
         PitchCmd=xp.findDataRef("sim/cockpit2/controls/total_pitch_ratio")
         RollCmd=xp.findDataRef( "sim/cockpit2/controls/total_roll_ratio")
         
-        xp.setDataf(ThrottleCmd, float(action[0]))
-        xp.setDataf(PitchCmd, float(action[1]))
-        xp.setDataf(RollCmd, float(action[2]))
+        xp.setDataf(ThrottleCmd, action[0])
+        xp.setDataf(PitchCmd, action[1])
+        xp.setDataf(RollCmd, action[2])
 
         #wait X=1 seconds here, then get observation and reward
         # xp.registerFlightLoopCallback(self.MyCallback, 1.0, 0)

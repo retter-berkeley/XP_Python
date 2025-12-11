@@ -28,6 +28,7 @@ In this case it controls N1 depending on the throttle value.
 
 It also shows the use of Menus and Widgets.
 """
+import datetime
 
 from XPPython3 import xp
 import time
@@ -47,7 +48,7 @@ class PythonInterface:
                                    "sim/joystick/yoke_roll_ratio","sim/joystick/FC_ptch",
                                    "sim/cockpit2/gauges/indicators/altitude_ft_pilot", "sim/flightmodel/position/true_psi",
                                    "sim/cockpit2/gauges/indicators/airspeed_kts_pilot"]
-        OutputDataRefDescriptions = ["sim/flightmodel/engine/ENGN_thro", "sim/cockpit2/controls/total_pitch_ratio",
+        OutputDataRefDescriptions = ["sim/flightmodel/engine/ENGN_thro", "sim/joystick/yolk_pitch_ratio",
                                    "sim/cockpit2/controls/total_roll_ratio","sim/flightmodel/controls/rudd_def"]
         self.DataRefDesc = ["1"]
         
@@ -59,7 +60,7 @@ class PythonInterface:
         xp.appendMenuItem(self.Id, "Data", 1)
 
         # # Flag to tell us if the widget is being displayed.
-        # self.MenuItem1 = 0
+        self.MenuItem1 = 0
 
         # Get our dataref handles here
         self.InputDataRef = []
@@ -72,6 +73,7 @@ class PythonInterface:
 
         # Register our FL callbadk with initial callback freq of 1 second
         self.InputOutputLoopCB = self.InputOutputLoopCallback
+        print("one")
         xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
 
         return self.Name, self.Sig, self.Desc
@@ -80,9 +82,9 @@ class PythonInterface:
         # Unregister the callback
         xp.unregisterFlightLoopCallback(self.InputOutputLoopCB, 0)
 
-        if self.MenuItem1 == 1:
-            xp.destroyWidget(self.InputOutputWidget, 1)
-            self.MenuItem1 = 0
+        # if self.MenuItem1 == 1:
+            # xp.destroyWidget(self.InputOutputWidget, 1)
+            # self.MenuItem1 = 0
 
         xp.destroyMenu(self.Id)
 
@@ -95,46 +97,6 @@ class PythonInterface:
     def XPluginReceiveMessage(self, inFromWho, inMessage, inParam):
         pass
 
-     def Obs(self):
-        # if self.MenuItem1 == 0:  # Don't process if widget not visible
-        #     return 1.0
-
-        # Only deal with the actual engines that we have
-        #self.NumberOfEngines = self.MAX_NUMBER_ENGINES#xp.getDatai(self.InputDataRef[1])
-
-        self.Pitch=[]
-        self.Roll = []
-        self.Yaw = []
-        self.Throttle =[]
-        self.Alt = []
-        self.Hdg = []
-        self.Speed = []
-
-        # Get our throttle positions for each engine
-        # self.Throttle:list[float] = []
-        count = xp.getDatavf(self.InputDataRef[0], self.Throttle, 0, 1)
-
-        # #Get pitch, roll, yaw
-
-        self.Pitch = xp.getDataf(self.InputDataRef[1])#, self.Pitch, 0, 1)
-        self.Roll = xp.getDataf(self.InputDataRef[2])#, self.Roll, 0, 1)
-        self.Yaw = xp.getDataf(self.InputDataRef[3])#, self.Yaw, 0, 1)
-
-        # #Get altitude, heading, airspeed
-
-        self.Alt = xp.getDataf(self.InputDataRef[4])#, self.Alt, 0, 1)
-        self.Hdg = xp.getDataf(self.InputDataRef[5])#, self.Hdg, 0, 1)
-        self.Speed = xp.getDataf(self.InputDataRef[6])#, self.Speed, 0, 1)
-
-        # #self.NewThrottle = self. Throttle + 0.05
-        # #time.sleep(5)
-        #print(self.Yaw, self.Pitch, self.Roll, self.Throttle, self.Alt, self.Hdg, self.Speed)
-        # # Set the new Throttle values for each engine
-        # xp.setDatavf(self.OutputDataRef[0], self.NewThrottle, 0)
-
-        # This means call us ever 1000ms.
-        return self.Yaw, self.Pitch, self.Roll, self.Throttle, self.Alt, self.Hdg, self.Speed
-    
     def InputOutputLoopCallback(self, elapsedMe, elapsedSim, counter, refcon):
         # if self.MenuItem1 == 0:  # Don't process if widget not visible
         #     return 1.0
@@ -149,11 +111,12 @@ class PythonInterface:
         self.Alt = []
         self.Hdg = []
         self.Speed = []
+        self.NewThrottle = []
 
         # Get our throttle positions for each engine
         # self.Throttle:list[float] = []
-        count = xp.getDatavf(self.InputDataRef[0], self.Throttle, 0, 1)
-
+        # count = xp.getDatavf(self.InputDataRef[0], self.Throttle, 0, 1)
+        self.Throttle = xp.getDataf(self.InputDataRef[0])
         # #Get pitch, roll, yaw
 
         self.Pitch = xp.getDataf(self.InputDataRef[1])#, self.Pitch, 0, 1)
@@ -166,18 +129,17 @@ class PythonInterface:
         self.Hdg = xp.getDataf(self.InputDataRef[5])#, self.Hdg, 0, 1)
         self.Speed = xp.getDataf(self.InputDataRef[6])#, self.Speed, 0, 1)
 
-        self.NewThrottle = self. Throttle + 0.05
+        self.NewThrottle = self.Pitch + 0.05
         # #time.sleep(5)
-        print(self.Yaw, self.Pitch, self.Roll, self.Throttle, self.Alt, self.Hdg, self.Speed)
+        print("two", self.Pitch, self.NewThrottle)
+        print(datetime.datetime.now().second)
+        #print(self.Yaw, self.Pitch, self.Roll, self.Throttle, self.Alt, self.Hdg, self.Speed)
         # # Set the new Throttle values for each engine
-        xp.setDatavf(self.OutputDataRef[0], self.NewThrottle, 0)
+        xp.setDataf(self.OutputDataRef[1], float(self.NewThrottle))
 
         # This means call us ever 1000ms.
         return 1.00
  
-    def SetPitch(self, PtichSet):
-        xp.setDataf(self.OutputDataRef[1], PitchSet)
-    
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
         # If menu selected create our widget dialog
         if inItemRef == 1:
