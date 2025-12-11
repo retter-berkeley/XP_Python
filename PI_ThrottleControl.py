@@ -166,11 +166,11 @@ class PythonInterface:
         self.Hdg = xp.getDataf(self.InputDataRef[5])#, self.Hdg, 0, 1)
         self.Speed = xp.getDataf(self.InputDataRef[6])#, self.Speed, 0, 1)
 
-        # #self.NewThrottle = self. Throttle + 0.05
+        self.NewThrottle = self. Throttle + 0.05
         # #time.sleep(5)
         print(self.Yaw, self.Pitch, self.Roll, self.Throttle, self.Alt, self.Hdg, self.Speed)
         # # Set the new Throttle values for each engine
-        # xp.setDatavf(self.OutputDataRef[0], self.NewThrottle, 0)
+        xp.setDatavf(self.OutputDataRef[0], self.NewThrottle, 0)
 
         # This means call us ever 1000ms.
         return 1.00
