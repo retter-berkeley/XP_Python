@@ -31,24 +31,25 @@ class PythonInterface:
             self.ActionDataRef.append(xp.findDataRef(self.ActionDataRefDescriptions[Item]))
       
         #XP init:  make item list
-        Item = xp.appendMenuItem(xp.findPluginsMenu(), "Python - Position 1", 0)
+        Item = xp.appendMenuItem(xp.findPluginsMenu(), "Python - Drives 1", 0)
         self.PositionMenuHandlerCB = self.PositionMenuHandler
-        self.Id = xp.createMenu("Position1", xp.findPluginsMenu(), Item, self.PositionMenuHandlerCB, 0)
-        xp.appendMenuItem(self.Id, "Position1", 1)
+        self.Id = xp.createMenu("Drives1", xp.findPluginsMenu(), Item, self.PositionMenuHandlerCB, 0)
+        xp.appendMenuItem(self.Id, "Drives1", 1)
     
         # Flag to tell us if the widget is being displayed.
         self.MenuItem1 = 0
         
         self.XP_test()
-        #self.InputOutputLoopCB = self.XP_test
-        xp.registerFlightLoopCallback(self.XP_test(), 1.0, 0)
+        self.InputOutputLoopCB = self.InputOutputLoopCallback
+        xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
 
         
         return self.Name, self.Sig, self.Desc
 
+
     def XPluginStop(self):
         # Unregister the callback
-        #xp.unregisterFlightLoopCallback(self.InputOutputLoopCB, 0)
+        xp.unregisterFlightLoopCallback(self.InputOutputLoopCB, 0)
 
         if self.MenuItem1 == 1:
             xp.destroyWidget(self.InputOutputWidget, 1)
@@ -64,18 +65,55 @@ class PythonInterface:
 
     def XPluginReceiveMessage(self, inFromWho, inMessage, inParam):
         pass
-        
-    def MyMenuHandlerCallback(self, inMenuRef, inItemRef):
-        """
-        Python2:
-        This is the menu callback.  We simply turn the item ref back
-        into a command ID and tell the sim to do it.
 
-        Python3:
-        No need for callback to do anything.
-        """
-        # xp.commandKeyStroke(inItemRef)
-        pass
+    def InputOutputLoopCallback(self, elapsedMe, elapsedSim, counter, refcon):
+        if self.MenuItem1 == 0:  # Don't process if widget not visible
+            return 1.0
+
+        # Process each engine
+        self.NewN1 = []
+
+        # This means call us ever 10ms.
+        return 0.01
+
+    def InputOutputMenuHandler(self, inMenuRef, inItemRef):
+        # If menu selected create our widget dialog
+        if inItemRef == 1:
+            if self.MenuItem1 == 0:
+                self.CreateInputOutputWidget(300, 550, 350, 350)
+                self.MenuItem1 = 1
+            else:
+                if not xp.isWidgetVisible(self.InputOutputWidget):
+                    xp.showWidget(self.InputOutputWidget)
+
+    """
+    This will create our widget dialog.
+    I have made all child widgets relative to the input paramter.
+    This makes it easy to position the dialog
+    """
+    def CreateInputOutputWidget(self, x, y, w, h):
+        x2 = x + w
+        y2 = y - h
+
+        # Create the Main Widget window
+        self.InputOutputWidget = xp.createWidget(x, y, x2, y2, 1, "Python - XP Drives Example 1",
+                                                 1, 0, xp.WidgetClass_MainWindow)
+
+        # Add Close Box decorations to the Main Widget
+        xp.setWidgetProperty(self.InputOutputWidget, xp.Property_MainWindowHasCloseBoxes, 1)
+
+       
+        self.InputOutputHandlerCB = self.InputOutputHandler
+        xp.addWidgetCallback(self.InputOutputWidget, self.InputOutputHandlerCB)
+
+    def InputOutputHandler(self, inMessage, inWidget, inParam1, inParam2):
+        if inMessage == xp.Message_CloseButtonPushed:
+            if self.MenuItem1 == 1:
+                xp.hideWidget(self.InputOutputWidget)
+            return 1
+
+        return 0
+
     
     def XPobs(self):
         Pitch=[]
