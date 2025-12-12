@@ -88,6 +88,8 @@ class PythonInterface:
         if datetime.datetime.now().second - self.start > 10:
             print("reset cmnd")
             XPreset()
+            self.start =  datetime.datetime.now().second
+            return 10
         return 1
 
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
@@ -160,9 +162,9 @@ class PythonInterface:
     
     def XPreset(self):
         #xp.registerFlightLoopCallback(self.InputOutputLoopCB, 3.0, 0)
-        AltRef=xp.findDataRef("sim/cockpit2/gauges/indicators/altitude_ft_pilot")
-        SpeedRef=xp.findDataRef("sim/cockpit2/gauges/indicators/airspeed_kts_pilot")
-        HdgRef=xp.findDataRef("sim/flightmodel/position/true_psi")
+        AltRef=xp.findDataRef("sim/flightmodel/position/elevation")
+        SpeedRef=xp.findDataRef("sim/flightmodel/position/true_airspeed")
+        HdgRef=xp.findDataRef("sim/flightmodel/position/mag_psi ")
         
         xp.setDataf(AltRef, 4000.)
         xp.setDataf(SpeedRef, 120.)
