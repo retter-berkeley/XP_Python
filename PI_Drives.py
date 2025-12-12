@@ -178,7 +178,7 @@ class PythonInterface:
     def XPaction(self,action):
         #send command
         ThrottleCmd=xp.findDataRef("sim/flightmodel/engine/ENGN_thro")
-        PitchCmd=xp.findDataRef("sim/cockpit2/controls/total_pitch_ratio")
+        PitchCmd=xp.findDataRef("sim/joystick/yolk_pitch_ratio")
         RollCmd=xp.findDataRef( "sim/cockpit2/controls/total_roll_ratio")
         
         xp.setDataf(ThrottleCmd, action[0])
