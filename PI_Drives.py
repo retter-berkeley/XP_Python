@@ -75,15 +75,19 @@ class PythonInterface:
             return 1.0
 
         # Process each engine
+        self.start =  datetime.datetime.now().second
         if datetime.datetime.now().second %2 ==0:
-            action=np.array([0.1,0.1,0.9])
+            action=np.array([0.1,0.5,-0.5])
         else:
-            action=np.array([0.9,0.9,0.1])
+            action=np.array([0.9,-0.5,0.5])
         self.XP_test(action)
         print(datetime.datetime.now().second, action)
         state= self.XPobs()
         print("state ",state)
         # return 0.01 means call us ever 10ms.
+        if datetime.datetime.now().second - self.start > 10:
+            print("reset cmnd")
+            XPreset()
         return 1
 
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
@@ -165,13 +169,14 @@ class PythonInterface:
         xp.setDataf(HdgRef, 180.)
     
         # #send command
-        # ThrottleCmd=xp.findDataRef("sim/flightmodel/engine/ENGN_thro")
-        # PitchCmd=xp.findDataRef("sim/cockpit2/controls/total_pitch_ratio")
-        # RollCmd=xp.findDataRef( "sim/cockpit2/controls/total_roll_ratio")
+        ThrottleCmd=xp.findDataRef("sim/flightmodel/engine/ENGN_thro")
+        PitchCmd=xp.findDataRef("sim/joystick/yolk_pitch_ratio")
+        RollCmd=xp.findDataRef( "sim/joystick/yolk_roll_ratio")
         
-        # xp.setDataf(ThrottleCmd, action[0])
-        # xp.setDataf(PitchCmd, action[1])
-        # xp.setDataf(RollCmd, action[2])
+        xp.setDataf(ThrottleCmd, 0.5)
+        xp.setDataf(PitchCmd, 0.0)
+        xp.setDataf(RollCmd, 0.0)
+        print("reset")
         state = self.XPobs()
         return state
 
@@ -179,7 +184,7 @@ class PythonInterface:
         #send command
         ThrottleCmd=xp.findDataRef("sim/flightmodel/engine/ENGN_thro")
         PitchCmd=xp.findDataRef("sim/joystick/yolk_pitch_ratio")
-        RollCmd=xp.findDataRef( "sim/cockpit2/controls/total_roll_ratio")
+        RollCmd=xp.findDataRef( "sim/joystick/yolk_roll_ratio")
         
         xp.setDataf(ThrottleCmd, action[0])
         xp.setDataf(PitchCmd, action[1])
