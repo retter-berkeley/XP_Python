@@ -89,7 +89,7 @@ class PythonInterface:
             print("reset cmnd")
             XPreset()
             self.start =  datetime.datetime.now().second
-            return 10
+            return 5
         return 1
 
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
@@ -129,6 +129,12 @@ class PythonInterface:
             return 1
 
         return 0
+        
+    def XPluginEnable(self):
+        return 1
+
+    def XPluginDisable(self):
+        pass
 
     
     def XPobs(self):
