@@ -175,17 +175,21 @@ class PythonInterface:
         xp.setDataf(AltRef, 4000.)
         xp.setDataf(SpeedRef, 120.)
         xp.setDataf(HdgRef, 180.)
-    
+        
+        lat = xp.GetDataf(xp.findDataRef("sim/flightmodel/position/latitude"))
+        long = xp.GetDataf(xp.findDataRef("sim/flightmodel/position/longitude"))
+        print(lat, long, type(lat), type(long))
         # #send command
         ThrottleCmd=xp.findDataRef("sim/flightmodel/engine/ENGN_thro")
         PitchCmd=xp.findDataRef("sim/joystick/yolk_pitch_ratio")
         RollCmd=xp.findDataRef( "sim/joystick/yolk_roll_ratio")
         
         xp.setDataf(ThrottleCmd, 0.5)
+        xp.placeUserAtLocation(lat, long, 4000 / 3.28084, 180, 120 / 1.94384)
         xp.setDataf(PitchCmd, 0.0)
         xp.setDataf(RollCmd, 0.0)
-        print("reset")
         state = self.XPobs()
+        print("reset")
         return state
 
     def XPaction(self,action):
