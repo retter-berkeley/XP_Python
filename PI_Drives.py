@@ -32,7 +32,9 @@ class PythonInterface:
         self.ActionDataRef = []
         for Item in range(4):
             self.ActionDataRef.append(xp.findDataRef(self.ActionDataRefDescriptions[Item]))
-      
+        self.AltRef=xp.findDataRef("sim/flightmodel/position/elevation")
+        self.SpeedRef=xp.findDataRef("sim/flightmodel/position/true_airspeed")
+        self.HdgRef=xp.findDataRef("sim/flightmodel/position/mag_psi")
         #XP init:  make item list
         # Item = xp.appendMenuItem(xp.findPluginsMenu(), "Python - Drives 1", 0)
         # #self.PositionMenuHandlerCB = self.PositionMenuHandler
@@ -42,7 +44,7 @@ class PythonInterface:
     
         # Flag to tell us if the widget is being displayed.
         self.MenuItem1 = 0
-        
+        self.start =  datetime.datetime.now()
         #self.XP_test()
         self.InputOutputLoopCB = self.InputOutputLoopCallback
         xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
@@ -74,22 +76,23 @@ class PythonInterface:
         if self.MenuItem1 == 0:  # Don't process if widget not visible
             return 1.0
 
-        # Process each engine
-        self.start =  datetime.datetime.now().second
         if datetime.datetime.now().second %2 ==0:
             action=np.array([0.1,0.5,-0.5])
         else:
             action=np.array([0.9,-0.5,0.5])
         self.XP_test(action)
-        print(datetime.datetime.now().second, action)
+        
         state= self.XPobs()
-        print("state ",state)
+        alt=xp.getDataf(self.AltRef)
+        speed=xp.getDataf(self.SpeedRef)
+        hdg=xp.getDataf(self.HdgRef)
+        print(alt*3.28, speed*1.94, hdg)
         # return 0.01 means call us ever 10ms.
-        if datetime.datetime.now().second - self.start > 10:
+        if (datetime.datetime.now() - self.start).total_seconds() > 20:
             print("reset cmnd")
-            XPreset()
-            self.start =  datetime.datetime.now().second
-            return 5
+            self.XPreset()
+            self.start =  datetime.datetime.now()
+            return 10
         return 1
 
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
@@ -170,26 +173,41 @@ class PythonInterface:
         #xp.registerFlightLoopCallback(self.InputOutputLoopCB, 3.0, 0)
         AltRef=xp.findDataRef("sim/flightmodel/position/elevation")
         SpeedRef=xp.findDataRef("sim/flightmodel/position/true_airspeed")
-        HdgRef=xp.findDataRef("sim/flightmodel/position/mag_psi ")
+        HdgRef=xp.findDataRef("sim/flightmodel/position/mag_psi")
         
-        xp.setDataf(AltRef, 4000.)
-        xp.setDataf(SpeedRef, 120.)
-        xp.setDataf(HdgRef, 180.)
+        alt=xp.getDataf(AltRef)
+        speed=xp.getDataf(SpeedRef)
+        hdg=xp.getDataf(HdgRef)
         
-        lat = xp.GetDataf(xp.findDataRef("sim/flightmodel/position/latitude"))
-        long = xp.GetDataf(xp.findDataRef("sim/flightmodel/position/longitude"))
-        print(lat, long, type(lat), type(long))
+        lat = xp.getDataf(xp.findDataRef("sim/flightmodel/position/latitude"))
+        long = xp.getDataf(xp.findDataRef("sim/flightmodel/position/longitude"))
+        #print(lat, long, type(lat), type(long))
         # #send command
         ThrottleCmd=xp.findDataRef("sim/flightmodel/engine/ENGN_thro")
         PitchCmd=xp.findDataRef("sim/joystick/yolk_pitch_ratio")
         RollCmd=xp.findDataRef( "sim/joystick/yolk_roll_ratio")
         
+        Qvalues:list[float] = []
+        AltCmnd = xp.findDataRef("sim/flightmodel/position/local_y") #set in m
+        QCmnd = xp.findDataRef("sim/flightmodel/position/q") #set quaternion https://developer.x-plane.com/article/movingtheplane/
+        count = xp.getDatavf(QCmnd, Qvalues,0,4)
+        print("Q:  ", Qvalues, type(Qvalues))
+        #for straigh level heading 180 quaternion should be (0,1,0,0)
+        TASCmnd = xp.findDataRef("sim/flightmodel/position/local_vz")#Z axis should be south and Qmnd should orient to the south
         xp.setDataf(ThrottleCmd, 0.5)
-        xp.placeUserAtLocation(lat, long, 4000 / 3.28084, 180, 120 / 1.94384)
+        #xp.placeUserAtLocation(lat, long, 4000 / 3.28084, 180, 120 / 1.94384)
         xp.setDataf(PitchCmd, 0.0)
         xp.setDataf(RollCmd, 0.0)
+        
+        #print("preset:  ", alt, speed, hdg)
+        xp.setDataf(AltCmnd, 4000/3.28084)
+        #xp.setDatavf(QCmnd, [0.0,0.0,0.0,1.0], 0, 4)
+        #xp.setDataf(TASCmnd, 120/1.94384)
+        alt=xp.getDataf(AltRef)
+        speed=xp.getDataf(SpeedRef)
+        hdg=xp.getDataf(HdgRef)
+        #print("reset:  ", alt, speed, hdg)
         state = self.XPobs()
-        print("reset")
         return state
 
     def XPaction(self,action):
@@ -330,9 +348,9 @@ class PythonInterface:
             
             
     def XP_test(self, action):#self, elapsedMe, elapsedSim, counter, refcon):
-        state=self.XPreset()
+        #state=self.XPreset()
         #action=np.array([0.1,0.1,0.9])
         state, reward, done, truncated = self.XPaction(action)
-        print("PI drives test ",state, reward, done, truncated)
+        #print("PI drives test ",state, reward, done, truncated)
         return 1.00
     
