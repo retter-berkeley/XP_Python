@@ -35,6 +35,11 @@ class PythonInterface:
         self.AltRef=xp.findDataRef("sim/flightmodel/position/elevation")
         self.SpeedRef=xp.findDataRef("sim/flightmodel/position/true_airspeed")
         self.HdgRef=xp.findDataRef("sim/flightmodel/position/mag_psi")
+        
+        self.autoMode = xp.findDataRef("sim/cockpit/autopilot/autopilot_mode")
+        self.autoHdg = xp.findDataRef("sim/cockpit/autopilot/heading_mag")
+        self.autoAlt = xp.findDataRef("sim/cockpit/autopilot/altitude")
+        self.autoSpd = xp.findDataRef("sim/cockpit/autopilot/airspeed")
         #XP init:  make item list
         # Item = xp.appendMenuItem(xp.findPluginsMenu(), "Python - Drives 1", 0)
         # #self.PositionMenuHandlerCB = self.PositionMenuHandler
@@ -81,7 +86,7 @@ class PythonInterface:
         else:
             action=np.array([0.9,-0.5,0.5])
         self.XP_test(action)
-        
+        xp.setDataf(self.autoMode, 0)
         state= self.XPobs()
         alt=xp.getDataf(self.AltRef)
         speed=xp.getDataf(self.SpeedRef)
@@ -187,6 +192,7 @@ class PythonInterface:
         PitchCmd=xp.findDataRef("sim/joystick/yolk_pitch_ratio")
         RollCmd=xp.findDataRef( "sim/joystick/yolk_roll_ratio")
         
+        #try setting directly
         Qvalues:list[float] = []
         AltCmnd = xp.findDataRef("sim/flightmodel/position/local_y") #set in m
         QCmnd = xp.findDataRef("sim/flightmodel/position/q") #set quaternion https://developer.x-plane.com/article/movingtheplane/
@@ -199,8 +205,14 @@ class PythonInterface:
         xp.setDataf(PitchCmd, 0.0)
         xp.setDataf(RollCmd, 0.0)
         
+        #try with autopilot
+        xp.setDataf(self.autoMode, 2)
+        xp.setDataf(self.autoAlt, 4000)
+        xp.setDataf(self.autoHdg, 180)
+        xp.setDataf(self.autoSpd, 120)
+        
         #print("preset:  ", alt, speed, hdg)
-        xp.setDataf(AltCmnd, 4000/3.28084)
+        #xp.setDataf(AltCmnd, 4000/3.28084)
         #xp.setDatavf(QCmnd, [0.0,0.0,0.0,1.0], 0, 4)
         #xp.setDataf(TASCmnd, 120/1.94384)
         alt=xp.getDataf(AltRef)
