@@ -192,24 +192,31 @@ class PythonInterface:
         PitchCmd=xp.findDataRef("sim/joystick/yolk_pitch_ratio")
         RollCmd=xp.findDataRef( "sim/joystick/yolk_roll_ratio")
         
-        #try setting directly
-        Qvalues:list[float] = []
-        AltCmnd = xp.findDataRef("sim/flightmodel/position/local_y") #set in m
-        QCmnd = xp.findDataRef("sim/flightmodel/position/q") #set quaternion https://developer.x-plane.com/article/movingtheplane/
-        count = xp.getDatavf(QCmnd, Qvalues,0,4)
-        print("Q:  ", Qvalues, type(Qvalues))
-        #for straigh level heading 180 quaternion should be (0,1,0,0)
-        TASCmnd = xp.findDataRef("sim/flightmodel/position/local_vz")#Z axis should be south and Qmnd should orient to the south
+        #this should reset/reload a/c position.  Use with extended episodes
+        #where episode only resets at done or truncation (i.e. departure)
         xp.setDataf(ThrottleCmd, 0.5)
-        #xp.placeUserAtLocation(lat, long, 4000 / 3.28084, 180, 120 / 1.94384)
+        xp.placeUserAtLocation(lat, long, 4000 / 3.28084, 180, 120 / 1.94384)
         xp.setDataf(PitchCmd, 0.0)
         xp.setDataf(RollCmd, 0.0)
         
+        #try setting directly
+        # Qvalues:list[float] = []
+        # AltCmnd = xp.findDataRef("sim/flightmodel/position/local_y") #set in m
+        # QCmnd = xp.findDataRef("sim/flightmodel/position/q") #set quaternion https://developer.x-plane.com/article/movingtheplane/
+        # count = xp.getDatavf(QCmnd, Qvalues,0,4)
+        # print("Q:  ", Qvalues, type(Qvalues))
+        # #for straigh level heading 180 quaternion should be (0,1,0,0)
+        # TASCmnd = xp.findDataRef("sim/flightmodel/position/local_vz")#Z axis should be south and Qmnd should orient to the south
+        # xp.setDataf(ThrottleCmd, 0.5)
+        # #xp.placeUserAtLocation(lat, long, 4000 / 3.28084, 180, 120 / 1.94384)
+        # xp.setDataf(PitchCmd, 0.0)
+        # xp.setDataf(RollCmd, 0.0)
+        
         #try with autopilot
-        xp.setDataf(self.autoMode, 2)
-        xp.setDataf(self.autoAlt, 4000)
-        xp.setDataf(self.autoHdg, 180)
-        xp.setDataf(self.autoSpd, 120)
+        # xp.setDataf(self.autoMode, 2)
+        # xp.setDataf(self.autoAlt, 4000)
+        # xp.setDataf(self.autoHdg, 180)
+        # xp.setDataf(self.autoSpd, 120)
         
         #print("preset:  ", alt, speed, hdg)
         #xp.setDataf(AltCmnd, 4000/3.28084)
