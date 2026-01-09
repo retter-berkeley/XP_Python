@@ -80,27 +80,33 @@ class PythonInterface:
     def InputOutputLoopCallback(self, elapsedMe, elapsedSim, counter, refcon):
         if self.MenuItem1 == 0:  # Don't process if widget not visible
             return 1.0
-
-        #print("action time ", datetime.datetime.now().second)
-        if datetime.datetime.now().second %2 ==0:
-            action=np.array([0.1,0.5,-0.5])
-        else:
-            action=np.array([0.9,-0.5,0.5])
-        self.XP_test(action)
-        xp.setDataf(self.autoMode, 0)
-        state= self.XPobs()
-        alt=xp.getDataf(self.AltRef)
-        speed=xp.getDataf(self.SpeedRef)
-        hdg=xp.getDataf(self.HdgRef)
-        #print(alt*3.28, speed*1.94, hdg)
-        # return 0.01 means call us ever 10ms.
+        XP_test(self)
+        #########
+        #code for testing/developing action and reset with XPpython
+        # #print("action time ", datetime.datetime.now().second)
+        # if datetime.datetime.now().second %2 ==0:
+            # action=np.array([0.1,0.5,-0.5])
+        # else:
+            # action=np.array([0.9,-0.5,0.5])
+        # self.XP_test(action)
+        # xp.setDataf(self.autoMode, 0)
+        # state= self.XPobs()
+        # alt=xp.getDataf(self.AltRef)
+        # speed=xp.getDataf(self.SpeedRef)
+        # hdg=xp.getDataf(self.HdgRef)
+        # #print(alt*3.28, speed*1.94, hdg)
+        # # return 0.01 means call us ever 10ms.
         
-        if (datetime.datetime.now() - self.start).total_seconds() > 20:
-            #print("reset cmnd")
-            #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
-            self.XPreset()
-            self.start =  datetime.datetime.now()
-            return 10
+        # if (datetime.datetime.now() - self.start).total_seconds() > 20:
+            # #print("reset cmnd")
+            # #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
+            # self.XPreset()
+            # self.start =  datetime.datetime.now()
+            # return 10
+        ##########    
+            
+        #in production this just serves to set timing for the training
+        #it makes sure commands are entered at 1Hz and 5s delay when resetting
         return 1
 
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
@@ -344,6 +350,7 @@ class PythonInterface:
                 )
         
                 action = policy(tf_prev_state, ou_noise)
+                #need 1 second delay here
                 state, reward, done, truncated, _ = self.XPaction(action)
         
                 buffer.record((prev_state, action, reward, state))
@@ -360,7 +367,7 @@ class PythonInterface:
                 # End this episode when `done` or `truncated` is True
                 if done or truncated:
                     break
-        
+                #need 10 second delay if resetting (done or truncated)
                 prev_state = state
         
             ep_reward_list.append(episodic_reward)
@@ -371,10 +378,27 @@ class PythonInterface:
             avg_reward_list.append(avg_reward)      
             
             
-    def XP_test(self, action):#self, elapsedMe, elapsedSim, counter, refcon):
+    def XP_test(self):#self, elapsedMe, elapsedSim, counter, refcon):
         #state=self.XPreset()
         #action=np.array([0.1,0.1,0.9])
-        state, reward, done, truncated = self.XPaction(action)
+        xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, interval=1, 0)
+        if datetime.datetime.now().second %2 ==0:
+            action=np.array([0.1,0.5,-0.5])
+            xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, interval=2, 0)
+        else:
+            action=np.array([0.9,-0.5,0.5])
+        self.XP_test(action)
+        print(alt*3.28, speed*1.94, hdg)
+        # return 0.01 means call us ever 10ms.
+        
+        if (datetime.datetime.now() - self.start).total_seconds() > 20:
+            print("reset cmnd")
+            print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
+            xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, interval=5, 0)
+            self.XPreset()
+            self.start =  datetime.datetime.now()
+               
+        
         #print("PI drives test ",state, reward, done, truncated)
         return 1.00
     
