@@ -81,6 +81,7 @@ class PythonInterface:
         if self.MenuItem1 == 0:  # Don't process if widget not visible
             return 1.0
 
+        #print("action time ", datetime.datetime.now().second)
         if datetime.datetime.now().second %2 ==0:
             action=np.array([0.1,0.5,-0.5])
         else:
@@ -91,13 +92,15 @@ class PythonInterface:
         alt=xp.getDataf(self.AltRef)
         speed=xp.getDataf(self.SpeedRef)
         hdg=xp.getDataf(self.HdgRef)
-        print(alt*3.28, speed*1.94, hdg)
+        #print(alt*3.28, speed*1.94, hdg)
         # return 0.01 means call us ever 10ms.
+        
         if (datetime.datetime.now() - self.start).total_seconds() > 20:
-            print("reset cmnd")
+            #print("reset cmnd")
+            #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
             self.XPreset()
             self.start =  datetime.datetime.now()
-            return 30
+            return 10
         return 1
 
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
@@ -198,6 +201,7 @@ class PythonInterface:
         xp.placeUserAtLocation(lat, long, 4000 / 3.28084, 180, 120 / 1.94384)
         xp.setDataf(PitchCmd, 0.0)
         xp.setDataf(RollCmd, 0.0)
+        print(lat, long, alt, speed, hdg)
         
         #try setting directly
         # Qvalues:list[float] = []
