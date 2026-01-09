@@ -7,6 +7,7 @@ import tensorflow as tf
 import keras
 import numpy as np
 import datetime
+import time
 
 class PythonInterface:
     def XPluginStart(self):
@@ -80,9 +81,10 @@ class PythonInterface:
     def InputOutputLoopCallback(self, elapsedMe, elapsedSim, counter, refcon):
         if self.MenuItem1 == 0:  # Don't process if widget not visible
             return 0
-        cont = self.XP_test()
-        if !cont:
-            return 5.
+        # cont = self.XP_test()
+        # if !cont:
+            # return 5.
+        self.XP_test()
         #########
         #code for testing/developing action and reset with XPpython
         # #print("action time ", datetime.datetime.now().second)
@@ -390,6 +392,9 @@ class PythonInterface:
         else:
             action=np.array([0.9,-0.5,0.5])
         self.XPaction(action)
+        print(datetime.datetime.now())
+        time.sleep(1.)
+        print("short sleep ", datetime.datetime.now())
         print(alt*3.28, speed*1.94, hdg)
         # return 0.01 means call us ever 10ms.
         
@@ -398,6 +403,10 @@ class PythonInterface:
             print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
             #xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, 5.0, 0)
             self.XPreset()
+            print(datetime.datetime.now())
+            time.sleep(5.)
+            print("long sleep ", datetime.datetime.now())
+            time.sleep(5.)
             self.start =  datetime.datetime.now()
             return false  
         
