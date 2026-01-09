@@ -97,7 +97,7 @@ class PythonInterface:
             print("reset cmnd")
             self.XPreset()
             self.start =  datetime.datetime.now()
-            return 10
+            return 30
         return 1
 
     def InputOutputMenuHandler(self, inMenuRef, inItemRef):
@@ -344,13 +344,14 @@ class PythonInterface:
         
                 buffer.record((prev_state, action, reward, state))
                 episodic_reward += reward
-        
-                buffer.learn()
-        
-                update_target(target_actor, actor_model, tau)
-                update_target(target_critic, critic_model, tau)
+                
+                if n_step % 10 == 0 or done or truncated:
+                    buffer.learn()
+            
+                    update_target(target_actor, actor_model, tau)
+                    update_target(target_critic, critic_model, tau)
 
-                if n_step > 100: done = True 
+                if n_step > 1000: done = True 
                 else: n_step+=1
                 # End this episode when `done` or `truncated` is True
                 if done or truncated:
