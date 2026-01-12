@@ -14,7 +14,7 @@ class PythonInterface:
         self.Name = "Drive RL v1.0"
         self.Sig = "tbd"
         self.Desc = "RL training driving XPlane."
-
+        self.MenuItem1 = 0
         Item = xp.appendMenuItem(xp.findPluginsMenu(), "Python - PI_Drives 1", 0)
         self.InputOutputMenuHandlerCB = self.InputOutputMenuHandler
         self.Id = xp.createMenu("PI_Drives 1", xp.findPluginsMenu(), Item, self.InputOutputMenuHandlerCB, 0)
@@ -49,14 +49,17 @@ class PythonInterface:
         # xp.appendMenuItem(self.Id, "Drives1", 1)
         
         # Flag to tell us if the widget is being displayed.
-        self.MenuItem1 = 0
+        
         self.start =  datetime.datetime.now()
         
         self.InputOutputLoopCB = self.InputOutputLoopCallback
-        slef.myRefCon = {'data': []}
-        
-        
-        
+        self.myRefCon = {'data': []}
+        print("AA")
+        xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
+        #xp.unregisterFlightLoopCallback(self.InputOutputLoopCB, 0)
+        print("BB")
+
+                
         ###########start PPO section
         # std_dev = 0.2
         # ou_noise = functions.OUActionNoise(mean=np.zeros(1), std_deviation=float(std_dev) * np.ones(1))
@@ -135,14 +138,14 @@ class PythonInterface:
             # avg_reward_list.append(avg_reward)      
 
 
-        xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
+        #xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
         
         
         return self.Name, self.Sig, self.Desc
 
 
-    def MyCallback(lastCall, elapsedTime, counter, refCon):
-    
+    def MyCallback(self, elapsedMe, elapsedSim, counter, refcon):
+       print("mycallback")
        #xp.log(f"{elapsedTime}, {counter}")
     
        return 1.0
@@ -167,8 +170,13 @@ class PythonInterface:
         pass
 
     def InputOutputLoopCallback(self, elapsedMe, elapsedSim, counter, refcon):
+        
         if self.MenuItem1 == 0:  # Don't process if widget not visible
+            print("call two")
             return 1.
+        print("call one")
+        self.XP_test()
+        xp.unregisterFlightLoopCallback(self.MyCallback, 0)
         # cont = self.XP_test()
         # if !cont:
             # return 5.
@@ -176,32 +184,32 @@ class PythonInterface:
         #self.XP_test()
         #########
         #code for testing/developing action and reset with XPpython
-        print("action time ", datetime.datetime.now().second)
-        if datetime.datetime.now().second %2 ==0:
-            action=np.array([0.1,0.5,-0.5])
-        else:
-            action=np.array([0.9,-0.5,0.5])
-        self.XPaction(action)
-        xp.registerFlightLoopCallback(self.MyCallback, 1.0, self.myRefCon)
-        xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
-        # xp.setDataf(self.autoMode, 0)
-        # state= self.XPobs()
-        # alt=xp.getDataf(self.AltRef)
-        # speed=xp.getDataf(self.SpeedRef)
-        # hdg=xp.getDataf(self.HdgRef)
-        #print(alt*3.28, speed*1.94, hdg)
-        # return 0.01 means call us ever 10ms.
+        # print("action time ", datetime.datetime.now().second)
+        # if datetime.datetime.now().second %2 ==0:
+            # action=np.array([0.1,0.5,-0.5])
+        # else:
+            # action=np.array([0.9,-0.5,0.5])
+        # self.XPaction(action)
+        # xp.registerFlightLoopCallback(self.MyCallback, 1.0)
+        # xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
+        # # xp.setDataf(self.autoMode, 0)
+        # # state= self.XPobs()
+        # # alt=xp.getDataf(self.AltRef)
+        # # speed=xp.getDataf(self.SpeedRef)
+        # # hdg=xp.getDataf(self.HdgRef)
+        # #print(alt*3.28, speed*1.94, hdg)
+        # # return 0.01 means call us ever 10ms.
         
-        if (datetime.datetime.now() - self.start).total_seconds() > 20:
-            #print("reset cmnd")
-            #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
-            self.XPreset()
+        # if (datetime.datetime.now() - self.start).total_seconds() > 20:
+            # #print("reset cmnd")
+            # #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
+            # self.XPreset()
             
-            self.start =  datetime.datetime.now()
-            print(datetime.datetime.now())
-            xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
-            xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
-            print("long sleep ", datetime.datetime.now())
+            # self.start =  datetime.datetime.now()
+            # print(datetime.datetime.now())
+            # xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
+            # xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
+            # print("long sleep ", datetime.datetime.now())
         ##########    
             
         #in production this just serves to set timing for the training
@@ -302,7 +310,7 @@ class PythonInterface:
         
         #this should reset/reload a/c position.  Use with extended episodes
         #where episode only resets at done or truncation (i.e. departure)
-        xp.setDataf(ThrottleCmd, 0.5)
+        xp.setDataf(ThrottleCmd, 0.75)
         xp.placeUserAtLocation(lat, long, 4000 / 3.28084, 180, 120 / 1.94384)
         xp.setDataf(PitchCmd, 0.0)
         xp.setDataf(RollCmd, 0.0)
@@ -472,33 +480,64 @@ class PythonInterface:
             
             
     def XP_test(self):#self, elapsedMe, elapsedSim, counter, refcon):
-        #state=self.XPreset()
-        #action=np.array([0.1,0.1,0.9])
-        #xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, 1.0, 0)
-        print("test")
+        # #state=self.XPreset()
+        # #action=np.array([0.1,0.1,0.9])
+        # #xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, 1.0, 0)
+        # print("test")
+        # if datetime.datetime.now().second %2 ==0:
+            # action=np.array([0.1,0.5,-0.5])
+            # #xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, 2.0, 0)
+        # else:
+            # action=np.array([0.9,-0.5,0.5])
+        # self.XPaction(action)
+        # print(datetime.datetime.now())
+       
+        # print("short sleep ", datetime.datetime.now())
+        # print(alt*3.28, speed*1.94, hdg)
+        # # return 0.01 means call us ever 10ms.
+        
+        # if (datetime.datetime.now() - self.start).total_seconds() > 20:
+            # print("reset cmnd")
+            # print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
+            # #xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, 5.0, 0)
+            # self.XPreset()
+            # print(datetime.datetime.now())
+            
+            # print("long sleep ", datetime.datetime.now())
+            # self.start =  datetime.datetime.now()
+            # return false  
+        
+        # #print("PI drives test ",state, reward, done, truncated)
+        # return true
+        print("CC")
+        if self.MenuItem1 == 0:  return
+        print("DD")
         if datetime.datetime.now().second %2 ==0:
             action=np.array([0.1,0.5,-0.5])
-            #xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, 2.0, 0)
         else:
             action=np.array([0.9,-0.5,0.5])
         self.XPaction(action)
-        print(datetime.datetime.now())
-       
-        print("short sleep ", datetime.datetime.now())
-        print(alt*3.28, speed*1.94, hdg)
+        print("pre action ", datetime.datetime.now())
+        xp.registerFlightLoopCallback(self.MyCallback, 1.0, 0)
+        # xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
+        print("post action ", datetime.datetime.now())
+        # xp.setDataf(self.autoMode, 0)
+        # state= self.XPobs()
+        # alt=xp.getDataf(self.AltRef)
+        # speed=xp.getDataf(self.SpeedRef)
+        # hdg=xp.getDataf(self.HdgRef)
+        #print(alt*3.28, speed*1.94, hdg)
         # return 0.01 means call us ever 10ms.
         
         if (datetime.datetime.now() - self.start).total_seconds() > 20:
             print("reset cmnd")
-            print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
-            #xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, 5.0, 0)
+            #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
             self.XPreset()
-            print(datetime.datetime.now())
             
-            print("long sleep ", datetime.datetime.now())
             self.start =  datetime.datetime.now()
-            return false  
-        
-        #print("PI drives test ",state, reward, done, truncated)
-        return true
-    
+            #print(datetime.datetime.now())
+            print("pre reset ", datetime.datetime.now())
+            xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
+            #xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
+            print("post reset ", datetime.datetime.now())
+        return
