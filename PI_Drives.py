@@ -47,18 +47,106 @@ class PythonInterface:
         # self.InputOutputMenuHandlerCB = self.InputOutputMenuHandler
         # self.Id = xp.createMenu("Drives1", xp.findPluginsMenu(), Item, self.PositionMenuHandlerCB, 0)
         # xp.appendMenuItem(self.Id, "Drives1", 1)
-    
+        
         # Flag to tell us if the widget is being displayed.
         self.MenuItem1 = 0
         self.start =  datetime.datetime.now()
-        #self.XP_test()
+        
         self.InputOutputLoopCB = self.InputOutputLoopCallback
-        xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
+        slef.myRefCon = {'data': []}
+        
+        
+        
+        ###########start PPO section
+        # std_dev = 0.2
+        # ou_noise = functions.OUActionNoise(mean=np.zeros(1), std_deviation=float(std_dev) * np.ones(1))
+        
+        # actor_model = functions.get_actor()
+        # critic_model = functions.get_critic()
+        
+        # target_actor = functions.get_actor()
+        # target_critic = functions.get_critic()
+        
+        # # Making the weights equal initially
+        # target_actor.set_weights(actor_model.get_weights())
+        # target_critic.set_weights(critic_model.get_weights())
+        
+        # # Learning rate for actor-critic models
+        # critic_lr = 0.002
+        # actor_lr = 0.001
+        
+        # critic_optimizer = keras.optimizers.Adam(critic_lr)
+        # actor_optimizer = keras.optimizers.Adam(actor_lr)
+        
+        # total_episodes = 100
+        # # Discount factor for future rewards
+        # gamma = 0.99
+        # # Used to update target networks
+        # tau = 0.005
 
+        # num_states = 6
+        # num_actions = 3
+        
+        # self.buffer = Buffer(50000, 64, num_states, num_actions)
+
+        # ep_reward_list = []
+        # # To store average reward history of last few episodes
+        # avg_reward_list = []
+        
+        # for ep in range(total_episodes):
+
+            # prev_state, _ = self.XPreset
+            # xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
+            # xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
+            # episodic_reward = 0
+            # n_step = 0
+            # while True:
+                # tf_prev_state = keras.ops.expand_dims(
+                    # keras.ops.convert_to_tensor(prev_state), 0
+                # )
+        
+                # action = policy(tf_prev_state, ou_noise)
+                # #need 1 second delay here
+                # state, reward, done, truncated, _ = self.XPaction(action)
+                # xp.registerFlightLoopCallback(self.MyCallback, 1.0, self.myRefCon)
+                # xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
+                # buffer.record((prev_state, action, reward, state))
+                # episodic_reward += reward
+                
+                # if n_step % 10 == 0 or done or truncated:
+                    # buffer.learn()
+            
+                    # update_target(target_actor, actor_model, tau)
+                    # update_target(target_critic, critic_model, tau)
+
+                # if n_step > 1000: done = True 
+                # else: n_step+=1
+                # # End this episode when `done` or `truncated` is True
+                # if done or truncated:
+                    # break
+                # #need 10 second delay if resetting (done or truncated)
+                # prev_state = state
+        
+            # ep_reward_list.append(episodic_reward)
+        
+            # # Mean of last 40 episodes
+            # avg_reward = np.mean(ep_reward_list[-40:])
+            # print("Episode * {} * Avg Reward is ==> {}".format(ep, avg_reward))
+            # avg_reward_list.append(avg_reward)      
+
+
+        xp.registerFlightLoopCallback(self.InputOutputLoopCB, 1.0, 0)
+        
         
         return self.Name, self.Sig, self.Desc
 
 
+    def MyCallback(lastCall, elapsedTime, counter, refCon):
+    
+       #xp.log(f"{elapsedTime}, {counter}")
+    
+       return 1.0
+    
     def XPluginStop(self):
         # Unregister the callback
         xp.unregisterFlightLoopCallback(self.InputOutputLoopCB, 0)
@@ -94,7 +182,8 @@ class PythonInterface:
         else:
             action=np.array([0.9,-0.5,0.5])
         self.XPaction(action)
-        time.sleep(1.)
+        xp.registerFlightLoopCallback(self.MyCallback, 1.0, self.myRefCon)
+        xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
         # xp.setDataf(self.autoMode, 0)
         # state= self.XPobs()
         # alt=xp.getDataf(self.AltRef)
@@ -107,9 +196,11 @@ class PythonInterface:
             #print("reset cmnd")
             #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
             self.XPreset()
+            
             self.start =  datetime.datetime.now()
             print(datetime.datetime.now())
-            time.sleep(5.)
+            xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
+            xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
             print("long sleep ", datetime.datetime.now())
         ##########    
             
@@ -272,12 +363,6 @@ class PythonInterface:
         return state, reward, done, truncated
 
         
-
-    def MyCallback(lastCall, elapsedTime, counter, refCon):
-    
-       #xp.log(f"{elapsedTime}, {counter}")
-    
-       return 1.0
     
     def PositionMenuHandler(self, inMenuRef, inItemRef):
         # If menu selected create our widget dialog
@@ -398,7 +483,7 @@ class PythonInterface:
             action=np.array([0.9,-0.5,0.5])
         self.XPaction(action)
         print(datetime.datetime.now())
-        time.sleep(1.)
+       
         print("short sleep ", datetime.datetime.now())
         print(alt*3.28, speed*1.94, hdg)
         # return 0.01 means call us ever 10ms.
@@ -409,7 +494,7 @@ class PythonInterface:
             #xp.setFlightLoopCallbackInterval(self.InputOutputLoopCB, 5.0, 0)
             self.XPreset()
             print(datetime.datetime.now())
-            time.sleep(5.)
+            
             print("long sleep ", datetime.datetime.now())
             self.start =  datetime.datetime.now()
             return false  
