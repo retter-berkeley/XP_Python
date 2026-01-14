@@ -517,10 +517,10 @@ class PythonInterface:
         else:
             action=np.array([0.9,-0.5,0.5])
         self.XPaction(action)
-        print("pre action ", datetime.datetime.now())
-        xp.registerFlightLoopCallback(self.MyCallback, 1.0, 0)
+        #print("pre action ", datetime.datetime.now())
+        #xp.registerFlightLoopCallback(self.MyCallback, 1.0, 0)
         # xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
-        print("post action ", datetime.datetime.now())
+        #print("post action ", datetime.datetime.now())
         # xp.setDataf(self.autoMode, 0)
         # state= self.XPobs()
         # alt=xp.getDataf(self.AltRef)
@@ -536,8 +536,8 @@ class PythonInterface:
             
             self.start =  datetime.datetime.now()
             #print(datetime.datetime.now())
-            print("pre reset ", datetime.datetime.now())
-            xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
+            #print("pre reset ", datetime.datetime.now())
+            #xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
             #xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
-            print("post reset ", datetime.datetime.now())
+            #print("post reset ", datetime.datetime.now())
         return
