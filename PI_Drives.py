@@ -176,7 +176,7 @@ class PythonInterface:
             return 1.
         print("call one")
         self.XP_test()
-        xp.unregisterFlightLoopCallback(self.MyCallback, 0)
+        #xp.unregisterFlightLoopCallback(self.MyCallback, 0)
         # cont = self.XP_test()
         # if !cont:
             # return 5.
@@ -509,35 +509,42 @@ class PythonInterface:
         
         # #print("PI drives test ",state, reward, done, truncated)
         # return true
-        print("CC")
-        if self.MenuItem1 == 0:  return
-        print("DD")
-        if datetime.datetime.now().second %2 ==0:
-            action=np.array([0.1,0.5,-0.5])
-        else:
-            action=np.array([0.9,-0.5,0.5])
-        self.XPaction(action)
-        #print("pre action ", datetime.datetime.now())
-        #xp.registerFlightLoopCallback(self.MyCallback, 1.0, 0)
-        # xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
-        #print("post action ", datetime.datetime.now())
-        # xp.setDataf(self.autoMode, 0)
-        # state= self.XPobs()
-        # alt=xp.getDataf(self.AltRef)
-        # speed=xp.getDataf(self.SpeedRef)
-        # hdg=xp.getDataf(self.HdgRef)
-        #print(alt*3.28, speed*1.94, hdg)
-        # return 0.01 means call us ever 10ms.
-        
-        if (datetime.datetime.now() - self.start).total_seconds() > 20:
-            print("reset cmnd")
-            #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
-            self.XPreset()
+        while True:
+            print("CC")
+            if self.MenuItem1 == 0:  return
+            print("DD")
+            if datetime.datetime.now().second %2 ==0:
+                action=np.array([0.1,0.5,-0.5])
+            else:
+                action=np.array([0.9,-0.5,0.5])
+            self.XPaction(action)
+            print("pre action ", datetime.datetime.now())
+            #xp.registerFlightLoopCallback(self.MyCallback, 1.0, 0)
+            myRefCon = {'data': []}
+
+            flightLoopID = xp.createFlightLoop(self.MyCallback, refCon=myRefCon)
+            xp.scheduleFlightLoop(flightLoopID, -1)
+            # xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
+            print("post action ", datetime.datetime.now())
+            # xp.setDataf(self.autoMode, 0)
+            # state= self.XPobs()
+            # alt=xp.getDataf(self.AltRef)
+            # speed=xp.getDataf(self.SpeedRef)
+            # hdg=xp.getDataf(self.HdgRef)
+            #print(alt*3.28, speed*1.94, hdg)
+            # return 0.01 means call us ever 10ms.
             
-            self.start =  datetime.datetime.now()
-            #print(datetime.datetime.now())
-            #print("pre reset ", datetime.datetime.now())
-            #xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
-            #xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
-            #print("post reset ", datetime.datetime.now())
+            if (datetime.datetime.now() - self.start).total_seconds() > 20:
+                print("reset cmnd")
+                #print("time:  ", datetime.datetime.now(), self.start, (datetime.datetime.now() - self.start).total_seconds())
+                self.XPreset()
+                
+                self.start =  datetime.datetime.now()
+                #print(datetime.datetime.now())
+                #print("pre reset ", datetime.datetime.now())
+                #xp.registerFlightLoopCallback(self.MyCallback, 5.0, self.myRefCon)
+                flightLoopID = xp.createFlightLoop(MyCallback, refCon=myRefCon)
+                xp.scheduleFlightLoop(flightLoopID, -1)
+                #xp.unregisterFlightLoopCallback(self.MyCallback, self.myRefCon)
+                #print("post reset ", datetime.datetime.now())
         return
